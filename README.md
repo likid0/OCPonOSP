@@ -1,4 +1,4 @@
-#Basic commands to deploy OCP on OSP
+#Basic commands to deploy OCP on OSP#
 
 ## Repo git
 ```
