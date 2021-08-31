@@ -2,7 +2,7 @@
 apiVersion: machineconfiguration.openshift.io/v1
 kind: MachineConfig
 metadata:
-  name: 50-master-chrony
+  name: 50-infra-chrony
   labels:
     machineconfiguration.openshift.io/role: infra
 spec:

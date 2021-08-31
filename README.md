@@ -19,12 +19,14 @@ tar -zxvf openshift-client-linux.tar.gz -C bin
 ## OSP pre-requisites.
 
 ```
+cat /home/lab-user/.config/openstack/clouds.yaml
 openstack floating ip list
 openstack server list
 openstack port list
 openstack quota show
 openstack security group list
 openstack flavor list | grep 4c16g
+openstack server group list
 ```
 
 ## Install OCP on OSP
@@ -55,7 +57,8 @@ oc get sc
 ```
 openstack server group create --policy soft-anti-affinity --os-compute-api-version 2.15 cluster-blx99-hbb6h-infra
 cp OCPonOSP/day-two/mco/machineset-infra.yaml .
-sed -e s/hbb6h/CLUTERID/g machineset-infra.yaml
+sed -i -e 's/blx99-hbb6h/$CLUSTER-ID/g' machineset-infra.yaml
+#Also Modify serverGroupID: with the new sever group created in the previous step
 oc apply -f machineset-infra.yaml
 oc get machineset -A
 ```
@@ -85,5 +88,5 @@ ssh core@150.239.20.165
 openshift-install create ignition-configs --dir cluster-blx99
 openshift-install create  manifests --dir cluster-blx99
 butane chrony.bu  -o 99-worker-ntp.yaml
-cp 99-worker-ntp.yaml cluster-blx99/openshift/
+butane OCPonOSP/butane/chrony.bu  -o cluster-gmg42/openshift/99-worker-ntp.yaml
 ```
