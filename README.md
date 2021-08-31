@@ -1,11 +1,11 @@
-#Basic commands to deploy OCP on OSP#
+# Basic commands to deploy OCP on OSP
 
 ## Repo git
 ```
 git clone https://github.com/likid0/OCPonOSP.git
 ```
 
-##Openshift installer 
+## Openshift installer 
 ```
 curl -O https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/openshift-install-linux.tar.gz
 curl -O https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/openshift-client-linux.tar.gz
@@ -16,7 +16,7 @@ tar -zxvf openshift-install-linux.tar.gz -C bin/
 tar -zxvf openshift-client-linux.tar.gz -C bin
 ```
 
-##OSP pre-requisites.
+## OSP pre-requisites.
 
 ```
 openstack floating ip list
