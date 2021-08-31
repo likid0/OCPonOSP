@@ -1,0 +1,55 @@
+apiVersion: machine.openshift.io/v1beta1
+kind: MachineSet
+metadata:
+  labels:
+    machine.openshift.io/cluster-api-cluster: cluster-blx99-hbb6h
+    machine.openshift.io/cluster-api-machine-role: worker
+    machine.openshift.io/cluster-api-machine-type: worker
+  name: cluster-blx99-hbb6h-infra-0
+  namespace: openshift-machine-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      machine.openshift.io/cluster-api-cluster: cluster-blx99-hbb6h
+      machine.openshift.io/cluster-api-machineset: cluster-blx99-hbb6h-infra-0
+  template:
+    metadata:
+      labels:
+        machine.openshift.io/cluster-api-cluster: cluster-blx99-hbb6h
+        machine.openshift.io/cluster-api-machine-role: worker
+        machine.openshift.io/cluster-api-machine-type: worker
+        machine.openshift.io/cluster-api-machineset: cluster-blx99-hbb6h-infra-0
+    spec:
+      metadata:
+        labels:
+          node-role.kubernetes.io/infra: ""
+          node-role.kubernetes.io/worker: ""
+      providerSpec:
+        value:
+          apiVersion: openstackproviderconfig.openshift.io/v1alpha1
+          cloudName: openstack
+          cloudsSecret:
+            name: openstack-cloud-credentials
+            namespace: openshift-machine-api
+          flavor: 4c16g30d
+          image: cluster-blx99-hbb6h-rhcos
+          serverGroupID: 0e442bb3-76a1-4b7f-a59a-b3dbffb98a77
+          kind: OpenstackProviderSpec
+          networks:
+          - filter: {}
+            subnets:
+            - filter:
+                name: cluster-blx99-hbb6h-nodes
+                tags: openshiftClusterID=cluster-blx99-hbb6h
+          securityGroups:
+          - filter: {}
+            name: cluster-blx99-hbb6h-worker
+          serverMetadata:
+            Name: cluster-blx99-hbb6h-worker
+            openshiftClusterID: 
+          tags:
+          - openshiftClusterID=cluster-blx99-hbb6h
+          trunk: true
+          userDataSecret:
+            name: worker-user-data
