@@ -79,9 +79,9 @@ oc get mc
 ```
 openstack floating ip create e0ddc3ba-1707-44e1-a341-7c7006d60f45
 openstack server list -f value -c Name | grep master-0
-openstack server add security group  cluster-gmg42-vnwdm-master-0  gmg42-bastion_sg
-openstack server add floating ip cluster-gmg42-vnwdm-master-0  150.239.20.165
-ssh -i .ssh/gmg42key.pem core@150.239.20.165
+openstack server add security group  cluster-blx99-hbb6h-master-0  blx99-bastion_sg
+openstack server add floating ip cluster-blx99-hbb6h-master-0  150.239.20.165
+ssh -i .ssh/blx99key.pem core@150.239.20.165
 ```
 
 ## Modificar NTP durante el install
@@ -89,12 +89,20 @@ ssh -i .ssh/gmg42key.pem core@150.239.20.165
 openshift-install create ignition-configs --dir cluster-blx99
 openshift-install create  manifests --dir cluster-blx99
 butane chrony.bu  -o 99-worker-ntp.yaml
-butane OCPonOSP/butane/chrony.bu  -o cluster-gmg42/openshift/99-worker-ntp.yaml
+butane OCPonOSP/butane/chrony.bu  -o cluster-blx99/openshift/99-worker-ntp.yaml
 ```
 
 ## Mover los routers a los nodos de infra y scale a 3
 ```
+oc get pods -nopenshift-ingress -o wide | grep router
 oc get machinesets
-oc scale --replicas=3 machinesets/cluster-gmg42-vnwdm-infra-0 -n openshift-machine-api
-oc apply -f OCPonOSP/ingress-controller/default.yml
+oc scale --replicas=3 machinesets/cluster-blx99-hbb6h-infra-0 -n openshift-machine-api
+oc apply -f OCPonOSP/day-two/ingress-controller/default.yaml
+oc get pods -nopenshift-ingress -o wide | grep router
+```
+
+## Destroy cluster
+```
+openshift-install --log-level debug destroy cluster --dir cluster-blx99
+rm -Rf cluster-blx99
 ```
