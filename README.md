@@ -53,6 +53,7 @@ oc get sc
 
 ## Añadir nodos de tipo Infra Dia 2
 ```
+openstack server group create --policy soft-anti-affinity --os-compute-api-version 2.15 cluster-blx99-hbb6h-infra
 cp OCPonOSP/day-two/mco/machineset-infra.yaml .
 sed -e s/hbb6h/CLUTERID/g machineset-infra.yaml
 oc apply -f machineset-infra.yaml
