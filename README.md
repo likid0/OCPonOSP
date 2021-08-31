@@ -77,10 +77,11 @@ oc get mc
 
 ## Acceso SSH a nodo
 ```
-openstack server add security group 8a1d2214-054f-4f1e-b580-e7a802c8fd5b blx99-bastion_sg
 openstack floating ip create e0ddc3ba-1707-44e1-a341-7c7006d60f45
-openstack server add floating ip a38cc7ca-9a6a-4855-9a45-2ef96c27377e 150.239.20.165
-ssh core@150.239.20.165
+openstack server list -f value -c Name | grep master-0
+openstack server add security group  cluster-gmg42-vnwdm-master-0  gmg42-bastion_sg
+openstack server add floating ip cluster-gmg42-vnwdm-master-0  150.239.20.165
+ssh -i .ssh/gmg42key.pem core@150.239.20.165
 ```
 
 ## Modificar NTP durante el install
@@ -89,4 +90,11 @@ openshift-install create ignition-configs --dir cluster-blx99
 openshift-install create  manifests --dir cluster-blx99
 butane chrony.bu  -o 99-worker-ntp.yaml
 butane OCPonOSP/butane/chrony.bu  -o cluster-gmg42/openshift/99-worker-ntp.yaml
+```
+
+## Mover los routers a los nodos de infra y scale a 3
+```
+oc get machinesets
+oc scale --replicas=3 machinesets/cluster-gmg42-vnwdm-infra-0 -n openshift-machine-api
+oc apply -f OCPonOSP/ingress-controller/default.yml
 ```
