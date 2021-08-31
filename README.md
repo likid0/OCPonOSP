@@ -1,6 +1,9 @@
-*Pre-ReQ*
-# Repo git
+#Basic commands to deploy OCP on OSP
+
+## Repo git
+```
 git clone https://github.com/likid0/OCPonOSP.git
+```
 
 ##Openshift installer 
 ```
@@ -67,8 +70,6 @@ export CHRONY_CONF_B64=$(base64 -w0 OCPonOSP/day-two/mco/chrony.conf)
 envsubst < OCPonOSP/day-two/mco/mc-infra.yaml | oc apply -f -
 oc get mc
 ```
-
-
 
 ## Acceso SSH a nodo
 ```
