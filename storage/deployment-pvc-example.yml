@@ -1,0 +1,42 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rbd-write-workload-generator-cache
+  labels:
+    app: rbd-write-workload-generator-cache
+spec:
+  selector:
+    matchLabels:
+      app: rbd-write-workload-generator-cache
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: rbd-write-workload-generator-cache
+        workload: rbd
+        generator: 'yes'
+    spec:
+      containers:
+      - image: quay.io/ddomingu/ocsloadgenerator
+        imagePullPolicy: Always
+        name: rbdwriteworkloadgenerator
+        env:
+        - name: CEPH_PV_MOUNT_DIR
+          value: /mnt/pv
+        - name: CEPH_TEST_COMP
+          value: rbd
+        - name: CEPH_TEST_TYPE
+          value: write
+        - name: CEPH_TEST_W_CACHE
+          value: 'yes'
+        - name: CEPH_TEST_SLEEP
+          value: '0.1'
+        volumeMounts:
+        - name: rbd-write-workload-generator-persistent-storage
+          mountPath: /mnt/pv
+      volumes:
+      - name: rbd-write-workload-generator-persistent-storage
+        persistentVolumeClaim:
+          claimName: rbd-write-workload-generator-pv-claim-cache
