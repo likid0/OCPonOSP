@@ -3,7 +3,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: pv-example
   labels:
-    app: pv-example
+    app: rbd-write-workload-generator-cache
 spec:
   storageClassName: gp2
   accessModes:

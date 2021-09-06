@@ -39,4 +39,4 @@ spec:
       volumes:
       - name: rbd-write-workload-generator-persistent-storage
         persistentVolumeClaim:
-          claimName: rbd-write-workload-generator-pv-claim-cache
+          claimName: pv-example
