@@ -11,10 +11,11 @@ oc get pods -A
 ```
 
 ### Basics oc 
+```
 oc new-project demo
 oc new-app  httpd-example
 oc scale --replicas=3 rc/httpd-example-1
-
+```
 
 ### Operators Example.
 ```
