@@ -74,9 +74,9 @@ oc describe svc
 oc exec -it mysql-1-5gws9 -- bash
 $ /usr/bin/mysql -h 172.30.135.53 -P 3306 -u mysql
 $ /usr/bin/mysql -h 10.0.138.57 -P 30036 -u mysql
-
 ```
 # Services use Iptables controlled by kube-proxy, example On a worker node 
+```
 $ iptables -t nat -L
 ```
 
