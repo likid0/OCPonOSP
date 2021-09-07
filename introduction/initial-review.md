@@ -32,6 +32,15 @@ oc get mc
 oc get mc rendered-worker-8c2f88c95e34765b573f32c6a6b10568 -o yaml | grep -C 6 'name: core'
 ```
 
+### Computes
+```
+oc get nodes
+oc get nodes --show-labels
+oc describe node ip-10-0-177-157.us-east-2.compute.internal
+oc debug node/ip-10-0-177-157.us-east-2.compute.internal
+oc adm node-logs ip-10-0-177-157.us-east-2.compute.internal
+```
+
 
 ## Networking
 ### Networking services
@@ -50,12 +59,15 @@ oc get endpoints
 ```
 oc get route
 oc describe route httpd-example
+oc delete route httpd-example
+oc expose service httpd-example --hostname=curso.apps.cluster-rdnhg.rdnhg.sandbox81.opentlc.com
 ```
 
 ### Networking Ingress Nodeport
 ```
 oc new-app -S mysql
 oc new-app --template=mysql-ephemeral
+oc delete svc/mysql
 oc appy -f OCPonOSP/introduction/node-port.yml
 oc get svc
 oc describe svc 
@@ -70,8 +82,7 @@ $ iptables -t nat -L
 
 ### DNS 
 ```
-oc describe clusteroperator/dns
-oc get dnses.operator.openshift.io/default -o yaml
+oc get dnses.operator.openshift.io/default -o yaml | grep cluster
 oc get svc -n openshift-dns
 oc get pod -n openshift-dns  -o wide
 oc get ds -n openshift-dns
