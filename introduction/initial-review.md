@@ -14,7 +14,7 @@ oc get pods -A
 ```
 oc new-project demo
 oc new-app  httpd-example
-oc scale --replicas=3 rc/httpd-example-1
+oc scale --replicas=3 dc/httpd-example
 ```
 
 ### Operators Example.
