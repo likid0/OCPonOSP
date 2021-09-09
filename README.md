@@ -57,7 +57,7 @@ oc get sc
 ```
 openstack server group create --policy soft-anti-affinity --os-compute-api-version 2.15 cluster-vpff4-infra
 cp OCPonOSP/day-two/mco/machineset-infra.yaml .
-export CLUSTERID='cluster-vpff4'
+export CLUSTERID='8vhvz-8qlkb'
 sed -i -e "s/blx99-hbb6h/${CLUSTERID}/g" machineset-infra.yaml
 #!!!Also Modify serverGroupID: with the new sever group created in the previous step
 oc apply -f machineset-infra.yaml
