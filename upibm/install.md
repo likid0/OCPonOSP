@@ -249,6 +249,12 @@ openshift-install wait-for install-complete
 
 ## Disconnected Operator configuration 
 
+### References
+```
+https://github.com/openshift-telco/ocp4-offline-operator-mirror
+https://access.redhat.com/articles/5489341
+```
+
 Download tools
 ```
 curl -O https://github.com/fullstorydev/grpcurl/releases/download/v1.8.2/grpcurl_1.8.2_linux_x86_64.tar.gz
