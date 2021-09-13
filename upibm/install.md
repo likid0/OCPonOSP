@@ -91,7 +91,13 @@ After it is done run the following to get info about your environment and some i
 ```
 /usr/local/bin/helpernodecheck
 
-````
+```
+
+Check OCP images in the local registry
+
+```
+curl -u admin:admin -k -X GET https://registry.ocp4.example.com:5000/v2/ocp4/tags/list 
+```
 
 
 
@@ -237,6 +243,80 @@ To finish the install process, run the following
 ```
 openshift-install wait-for install-complete
 ```
+
+
+
+## Disconnected  Operator 
+
+Download tools
+```
+curl -O https://github.com/fullstorydev/grpcurl/releases/download/v1.8.2/grpcurl_1.8.2_linux_x86_64.tar.gz
+tar -zxvf grpcurl_1.8.2_linux_x86_64.tar.gz bin/
+curl -O https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/latest-4.8/opm-linux.tar.gz
+tar -zxvf opm-linux.tar.gz bin/
+```
+
+Disable OperatorHub Sources
+```
+$ oc patch OperatorHub cluster --type json \
+    -p '[{"op": "add", "path": "/spec/disableAllDefaultSources", "value": true}]'
+```
+
+Run the source index image that you want to prune in a container.  use grpcurl to list all available operators.
+
+```
+podman run -p50051:50051 \
+     -it registry.redhat.io/redhat/redhat-operator-index:v4.8
+
+grpcurl -plaintext localhost:50051 api.Registry/ListPackages > packages.out
+```
+
+Inspect the packages.out file and identify which package names from this list you want to keep in your pruned index. 
+
+In this example we are only going to install the web-terminal pkg/operator.
+
+```
+opm index prune     -f registry.redhat.io/redhat/redhat-operator-index:v4.8     -p web-terminal -t registry.ocp4.example.com:5000/ocp4/redhat-operator-index:v4.8
+```
+Push the pruned operator index image to the local registry:
+
+```
+podman push registry.ocp4.example.com:5000/ocp4/redhat-operator-index:v4.8
+```
+
+Export the auth.json podman/docker file that will give the mirror command access to the local registry 
+
+```
+REG_CREDS=${XDG_RUNTIME_DIR}/containers/auth.json
+```
+
+```
+oc adm catalog mirror   -a ${REG_CREDS}   --manifests-only   --index-filter-by-os='.*'  registry.ocp4.example.com:5000/ocp4/redhat-operator-index:v4.8  registry.ocp4.example.com:5000/ocp4
+cd manifests-redhat-operator-index-1631538294
+oc image mirror   --skip-multiple-scopes=true   -a ${REG_CREDS}   --filter-by-os='.*'   -f mapping.txt
+```
+
+Create  imageContentSourcePolicy and catalogSource with the help of the yaml files created with the oc adm catalog mirror command
+
+```
+cd manifests-redhat-operator-index-1631538294
+oc create -f imageContentSourcePolicy.yaml
+oc create -f catalogSource.yaml
+oc get pods -n openshift-marketplace
+oc get catalogsource -n openshift-marketplace
+oc get packagemanifest -n openshift-marketplace
+```
+
+Now we can install our webterminal operator package.
+
+
+## Upgrading OCP version on a disconnected ENV.
+Download the new OCP 4.8.10 images into the local registry
+```
+oc adm release mirror  -a .openshift/pull-secret-updated --from=quay.io/openshift-release-dev/ocp-release:4.8.10-x86_64 --to=registry.ocp4.example.com:5000/ocp4 --apply-release-image-signature
+```
+
+
 
 
 

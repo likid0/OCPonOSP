@@ -22,7 +22,7 @@ platform:
 pullSecret: '$(< ~/.openshift/pull-secret-updated)'
 sshKey: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCyA4LIUI0nYflIbA63h0edLOSKb+KvEjkd/iy5wVyIMgS+v7bAkGH+8MPfVr01Wb/po0SpLrakmciCitEf4/fshts+FMWPIU0/pZlMTsP0ZeUKUfpy+UXRsHc8kB951et14E+63M6sxu6zCnrxMo4EkmgHiGuMeOOjGoBuMFB4kvnW7qDxnXn/IZfpZjZ9t1vNdgKGP8euYpBn1b9zqoeICB/6Swn5lwwlGVTjnif55DNY+iw6HRZtNp4ews3YBDdH9MDTqv7hJ/kGzjWQsmqs9aydG3s93weV6YzjI4+FlhVHE0uDMLZ9WXwzp/8ku0nS+nTdtsnQYxCVhZiIV7Wm7J4y/I4QjplqRst3xTA+sap/JK2ta9kgQ8hvTm+NlqhQc0yP8qBvo10ajD3mZPJIZUQpf/qKF9Df8PzDMGGUgk0LEK6vYILWObnS2bvBgSeIcVcPW5+8kzs7I3hptqiCfIY+XtJ6GSmnbeUpNL9b8tq8LcIiaspFU8knKI9t3lE= root@helper.example.com'
 additionalTrustBundle: |
-  -----BEGIN CERTIFICATE-----
+ -----BEGIN CERTIFICATE-----
  MIIFLjCCAxagAwIBAgIUA3DsNhJUbU7pVEX24j3I9LoGzZswDQYJKoZIhvcNAQEL
  BQAwJDEiMCAGA1UEAwwZcmVnaXN0cnkub2NwNC5leGFtcGxlLmNvbTAeFw0yMTA5
  MTAxMzMzMTZaFw0zMTA5MDgxMzMzMTZaMCQxIjAgBgNVBAMMGXJlZ2lzdHJ5Lm9j
@@ -51,7 +51,7 @@ additionalTrustBundle: |
  dphl75xyHiNWol9VLvvWxYw/puVAotDiw5co9EzTUmQLsvB0jqbBGg3XNgP9nq7D
  U3SpxQA1kTjpyo98Kauq64A5owl4Vb1AXxTJc7OsuhMb+9rF1VM1vOVlCRo5YM4e
  BWsGxGeY5Nnw1dpwzYDyoJl5/nTboN6L6j0lN+z8THTXAg==
-  -----END CERTIFICATE-----
+ -----END CERTIFICATE-----
 imageContentSources:
 - mirrors:
   - registry.ocp4.example.com:5000/ocp4/openshift4
