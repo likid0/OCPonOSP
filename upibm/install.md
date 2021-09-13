@@ -1,15 +1,15 @@
-## Install helper node.
+# Deploy UPI Baremetal in Disconnected Environment.
 
-### Create a machine/vm with the following minimum configuration.
+## Deploy OCP Disconnected.
 
+### Install helper node. Create a machine/vm with the following minimum configuration.
 
 * CentOS/RHEL 7 or 8
 * 50GB HD
 * 4 CPUs
 * 8 GB of RAM
 
-
-Install EPEL
+Onced the helper nodes is deployed login and Install EPEL
 
 ```
 yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(rpm -E %rhel).noarch.rpm
@@ -101,7 +101,7 @@ curl -u admin:admin -k -X GET https://registry.ocp4.example.com:5000/v2/ocp4/tag
 
 
 
-## Create Ignition Configs
+### Create Ignition Configs
 
 Now you can start the installation process. Create an install dir.
 
@@ -179,7 +179,7 @@ restorecon -vR /var/www/html/
 chmod o+r /var/www/html/ignition/*.ign
 ```
 
-## Install Instances
+### Deploy RHCOS instances 
 
 PXE boot into your Instances and they should load up the right configuration based on the MAC address. The DHCP server is set up with MAC address filtering and the PXE service is configured to load the right config to the right machine (based on mac address).
 
@@ -189,7 +189,7 @@ Boot/install the VMs/Instances in the following order
 * Masters
 * Workers
 
-## Wait for install
+### Wait for install
 
 The boostrap VM actually does the install for you; you can track it with the following command.
 
@@ -206,6 +206,7 @@ First, login to your cluster
 
 ```
 export KUBECONFIG=/root/ocp4/auth/kubeconfig
+```
 
 Your install may be waiting for worker nodes to get approved. Normally the `machineconfig node approval operator` takes care of this for you. However, sometimes this needs to be done manually. Check pending CSRs with the following command.
 
@@ -246,7 +247,7 @@ openshift-install wait-for install-complete
 
 
 
-## Disconnected  Operator 
+## Disconnected Operator configuration 
 
 Download tools
 ```
