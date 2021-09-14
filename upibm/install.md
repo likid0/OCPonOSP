@@ -99,6 +99,174 @@ Check OCP images in the local registry
 curl -u admin:admin -k -X GET https://registry.ocp4.example.com:5000/v2/ocp4/tags/list 
 ```
 
+### [OPTIONAL only instructive]. Review Helper node playbook pre-requisite deployment on helper node.
+
+### Httpd to host Boot images for PXE(live rootfs coreos) and Ignition files
+```
+[root@helper ~]# ps -ef | grep httpd
+root        5041       1  0 08:22 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND
+apache      5043    5041  0 08:22 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND
+apache      5044    5041  0 08:22 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND
+apache      5045    5041  0 08:22 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND
+apache      5046    5041  0 08:22 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND
+root        5851    1885  0 08:35 pts/0    00:00:00 grep --color=auto httpd
+[root@helper ~]# ls -lR /var/www/html/
+/var/www/html/:
+total 0
+drwxr-xr-x. 2 root root 63 Sep 10 14:23 ignition
+drwxr-xr-x. 2 root root 24 Sep 10 13:21 install
+
+/var/www/html/ignition:
+total 284
+-rw-r--r--. 1 root root 280711 Sep 14 08:30 bootstrap.ign
+-rw-r--r--. 1 root root   1718 Sep 14 08:30 master.ign
+-rw-r--r--. 1 root root   1718 Sep 14 08:30 worker.ign
+
+/var/www/html/install:
+total 901988
+-r-xr-xr-x. 1 root root 923635712 Sep 10 13:21 rootfs.img
+```
+### DHCP with fixed IPs for our OCP nodes, and PXE/Nextserver config.
+
+```
+[root@helper ~]# ps -ef | grep dhcp
+dhcpd       5551       1  0 08:22 ?        00:00:00 /usr/sbin/dhcpd -f -cf /etc/dhcp/dhcpd.conf -user dhcpd -group dhcpd --no-pid
+[root@helper ~]# cat /etc/dhcp/dhcpd.conf
+authoritative;
+ddns-update-style interim;
+default-lease-time 14400;
+max-lease-time 14400;
+
+    option routers                  10.10.10.1;
+    option broadcast-address        10.10.10.255;
+    option subnet-mask              255.255.255.0;
+    option domain-name-servers      10.10.10.2;
+    option domain-name              "ocp4.example.com";
+    option domain-search            "ocp4.example.com", "example.com";
+
+    subnet 10.10.10.0 netmask 255.255.255.0 {
+    interface eth0;
+        pool {
+            range 10.10.10.10 10.10.10.30;
+        # Static entries
+        host bootstrap { hardware ethernet aa:bb:cc:dd:ee:06; fixed-address 10.10.10.20; }
+        host master0 { hardware ethernet aa:bb:cc:dd:ee:01; fixed-address 10.10.10.21; }
+        host master1 { hardware ethernet aa:bb:cc:dd:ee:02; fixed-address 10.10.10.22; }
+        host master2 { hardware ethernet aa:bb:cc:dd:ee:03; fixed-address 10.10.10.23; }
+        host worker0 { hardware ethernet aa:bb:cc:dd:ee:04; fixed-address 10.10.10.11; }
+        host worker1 { hardware ethernet aa:bb:cc:dd:ee:05; fixed-address 10.10.10.12; }
+        # this will not give out addresses to hosts not listed above
+        deny unknown-clients;
+
+        # this is PXE specific
+        filename "pxelinux.0";
+
+        next-server 10.10.10.2;
+        }
+}
+```
+### Tftp. PXE provisioning.
+
+```
+[root@helper tftpboot]# ls -l /var/lib/tftpboot/pxelinux.cfg
+total 24
+-r-xr-xr-x. 1 root root 423 Sep 10 13:21 01-aa-bb-cc-dd-ee-01
+-r-xr-xr-x. 1 root root 423 Sep 10 13:21 01-aa-bb-cc-dd-ee-02
+-r-xr-xr-x. 1 root root 423 Sep 10 13:21 01-aa-bb-cc-dd-ee-03
+-r-xr-xr-x. 1 root root 423 Sep 10 13:21 01-aa-bb-cc-dd-ee-04
+-r-xr-xr-x. 1 root root 423 Sep 10 13:21 01-aa-bb-cc-dd-ee-05
+-r-xr-xr-x. 1 root root 440 Sep 10 13:21 01-aa-bb-cc-dd-ee-06
+[root@helper tftpboot]# ls -l /var/lib/tftpboot/rhcos/
+total 96884
+-r-xr-xr-x. 1 root root 89175364 Sep 10 13:21 initramfs.img
+-r-xr-xr-x. 1 root root 10030400 Sep 10 13:21 kernel
+
+[root@helper tftpboot]# cat /var/lib/tftpboot/pxelinux.cfg/01-aa-bb-cc-dd-ee-01
+default menu.c32
+ prompt 1
+ timeout 9
+ ONTIMEOUT 1
+ menu title ######## PXE Boot Menu ########
+ label 1
+ menu label ^1) Install Master Node
+ menu default
+ kernel rhcos/kernel
+ append initrd=rhcos/initramfs.img nomodeset rd.neednet=1 ip=dhcp coreos.inst=yes coreos.inst.install_dev=vda  coreos.live.rootfs_url=http://10.10.10.2:8080/install/rootfs.img  coreos.inst.ignition_url=http://10.10.10.2:8080/ignition/master.ign
+```
+### DNS configuration. Bind.
+```
+[root@helper named]# ps -ef | grep named
+named       5600       1  0 08:22 ?        00:00:00 /usr/sbin/named -u named -c /etc/named.conf
+[root@helper named]# cat /var/named/zonefile.db 
+$TTL 1W
+@	IN	SOA	ns1.ocp4.example.com.	root (
+			2021091005	; serial
+			3H		; refresh (3 hours)
+			30M		; retry (30 minutes)
+			2W		; expiry (2 weeks)
+			1W )		; minimum (1 week)
+	IN	NS	ns1.ocp4.example.com.
+	IN	MX 10	smtp.ocp4.example.com.
+;
+; 
+ns1	IN	A	10.10.10.2
+smtp	IN	A	10.10.10.2
+;
+helper	IN	A	10.10.10.2
+;
+;
+; The api points to the IP of your load balancer
+api			IN	A	10.10.10.2
+api-int		IN	A	10.10.10.2
+;
+; The wildcard also points to the load balancer
+*.apps		IN	A	10.10.10.2
+;
+; Create entry for the local registry
+registry	IN	A	10.10.10.2
+;
+; Create entry for the bootstrap host
+bootstrap	IN	A	10.10.10.20
+;
+; Create entries for the master hosts
+master0		IN	A	10.10.10.21
+master1		IN	A	10.10.10.22
+master2		IN	A	10.10.10.23
+;
+; Create entries for the worker hosts
+worker0		IN	A	10.10.10.11
+worker1		IN	A	10.10.10.12
+;
+```
+###  Haproxy. just showing a snippet of the config file.
+```
+[root@helper bin]# ps -ef | grep haproxy
+root        5460       1  0 08:22 ?        00:00:00 /usr/sbin/haproxy -Ws -f /etc/haproxy/haproxy.cfg -p /run/haproxy.pid
+haproxy     5462    5460  0 08:22 ?        00:00:05 /usr/sbin/haproxy -Ws -f /etc/haproxy/haproxy.cfg -p /run/haproxy.pid
+root        6116    1885  0 08:45 pts/0    00:00:00 grep --color=auto haproxy
+[root@helper bin]# cat /etc/haproxy/haproxy.cfg
+...
+listen stats
+    bind :9000
+    mode http
+    stats enable
+    stats uri /
+    monitor-uri /healthz
+
+
+frontend openshift-api-server
+    bind *:6443
+    default_backend openshift-api-server
+    option tcplog
+
+backend openshift-api-server
+    balance source
+    server bootstrap 10.10.10.20:6443 check
+    server master0 10.10.10.21:6443 check
+    server master1 10.10.10.22:6443 check
+    server master2 10.10.10.23:6443 check
+...    
+```
 
 
 ### Create Ignition Configs
@@ -174,7 +342,8 @@ openshift-install create ignition-configs
 Finally, copy the ignition files in the `ignition` directory for the websever
 
 ```
-cp ~/ocp4/*.ign /var/www/html/ignition/
+unalias cp
+cp -f ~/ocp4/*.ign /var/www/html/ignition/
 restorecon -vR /var/www/html/
 chmod o+r /var/www/html/ignition/*.ign
 ```
