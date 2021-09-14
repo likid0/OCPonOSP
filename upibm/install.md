@@ -441,6 +441,8 @@ $ oc patch OperatorHub cluster --type json \
 Run the source index image that you want to prune in a container.  use grpcurl to list all available operators.
 
 ```
+podman login registry.redhat.io
+podman login registry.ocp4.example.com:5000
 podman run -p50051:50051 \
      -it registry.redhat.io/redhat/redhat-operator-index:v4.8
 
