@@ -8,7 +8,7 @@ oc describe sc gp2
 ```
 oc get pv
 oc get pvc
-oc apply -f OCPonOSP/storage/config-pvc-example.yml
+oc apply -f OCPonOSP/storage/pvc-example.yml
 oc get pv
 oc get pvc
 oc apply -f OCPonOSP/storage/deployment-pvc-example.yml
@@ -63,7 +63,3 @@ oc new-app openshift/php:7.2-ubi8~https://github.com/christianh814/openshift-php
 oc logs -f bc/file-uploader
 oc scale --replicas=3 deploy/file-uploader
 oc set volume deploy/file-uploader --add --name=my-shared-storage  -t pvc --claim-mode=ReadWriteMany --claim-size=1Gi  --claim-name=my-shared-storage --claim-class=ocs-storagecluster-cephfs  --mount-path=/opt/app-root/src/uploaded
-
-
-
-
