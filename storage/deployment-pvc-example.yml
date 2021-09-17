@@ -36,6 +36,7 @@ spec:
         volumeMounts:
         - name: rbd-write-workload-generator-persistent-storage
           mountPath: /mnt/pv
+          readOnly: true
       volumes:
       - name: rbd-write-workload-generator-persistent-storage
         persistentVolumeClaim:
