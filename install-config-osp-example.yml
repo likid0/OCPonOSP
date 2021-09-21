@@ -1,0 +1,67 @@
+apiVersion: v1
+baseDomain: cloud-priv.example.es
+proxy:
+  httpProxy: "http://10.1.4.200:8080"
+  httpsProxy: "http://10.1.4.200:8080"
+  noProxy: "cloud-priv.example.es,10.1.70.0/23,10.1.76.0/22,10.1.72.0/22"
+additionalTrustBundle: | 
+    -----BEGIN CERTIFICATE-----
+    ...
+    -----END CERTIFICATE-----
+    -----BEGIN CERTIFICATE-----
+    ...
+    -----END CERTIFICATE-----
+    -----BEGIN CERTIFICATE-----
+    ....
+    -----END CERTIFICATE-----
+    -----BEGIN CERTIFICATE-----
+    ...
+    -----END CERTIFICATE-----
+compute:
+- architecture: amd64
+  hyperthreading: Enabled
+  name: worker
+  platform:
+    openstack:
+      type: m1.worker
+      additionalNetworkIDs:
+      - 61ded1c3-9e21-4a45-9b7d-b91d4370a076
+  replicas: 3
+controlPlane:
+  architecture: amd64
+  hyperthreading: Enabled
+  name: master
+  platform:
+    openstack:
+      type: m1.master
+  replicas: 3
+metadata:
+  creationTimestamp: null
+  name: ClusterNAme
+networking:
+  clusterNetwork:
+  - cidr: 10.128.0.0/14
+    hostPrefix: 23
+  machineNetwork:
+  - cidr: 10.0.0.0/16
+  networkType: OpenShiftSDN
+  serviceNetwork:
+  - 172.30.0.0/16
+platform:
+  openstack:
+    apiVIP: 10.0.0.5
+    cloud: overcloud
+    computeFlavor: m1.worker
+    externalDNS: null
+    externalNetwork: floating-pre
+    ingressVIP: 10.0.0.7
+    lbFloatingIP: 10.1.17.75
+    apiFloatingIP: 10.1.17.53
+    octaviaSupport: "0"
+    region: ""
+    trunkSupport: "1"
+    clusterOSImage: "http://10.1.17.104/rhcos-openstack.x86_64.qcow2.gz"
+publish: External
+pullSecret: ''
+sshKey: |
+  (ssh-rsa key.pub string)
